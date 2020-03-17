@@ -45,9 +45,10 @@ const optArticleSelector = '.post',
   optTitleListSelector = '.titles',
   optArticleTagsSelector = '.post-tags .list',
   optArticleAuthorSelector = '.post-author',
-  optTagsListSelector = '.tags.list',
+  optTagsListSelector = '.tags .list',
   optCloudClassCount = '5',
-  optCloudCLassPrefix = 'tag-size-';
+  optCloudCLassPrefix = 'tag-size-',
+  optAuthorsListSelector = '.authors';
 
 function generateTitleLinks(customSelector = ''){
 
@@ -133,7 +134,7 @@ function generateTags(){
     const articleTagsArray = articleTags.split(' ');
     /* START LOOP: for each tag */
     for(let tag of articleTagsArray){
-      /* generate HTML of the link */
+      /* generate HTML of the link TU CHYBA JEST BLAD*/
       const linkHTML = '<li><a href="#' + tag + '"><span>' + tag + '</span></a></li>';
       /* add generated code to html variable */
       html = html + linkHTML + ' ';
@@ -215,7 +216,7 @@ addClickListenersToTags();
 
 /*GENERATE AUTHORS*/
 function generateAuthors() {
-
+  let allAuthors = {};
   const articles = document.querySelectorAll(optArticleSelector);
 
   for (let article of articles) {
@@ -241,6 +242,8 @@ function authorClickHandler(event){
   event.preventDefault();
   /* make new constant named "clickedElement" and give it the value of "this" */
   const clickedElement = this;
+  
+  clickedElement.classList.add('active');
   /* make a new constant "href" and read the attribute "href" of the clicked element */
   const href = this.getAttribute('href');
   /* make a new constant "tag" and extract tag from the "href" constant */
@@ -254,7 +257,7 @@ function authorClickHandler(event){
   /* END LOOP: for each active tag link */
   }
   /* find all tag links with "href" attribute equal to the "href" constant */
-  const authorLinks = document.querySelectorAll('a[href="' + author + '"]');
+  const authorLinks = document.querySelectorAll('a[href^="#author-' + author + '"]');
   /* START LOOP: for each found tag link */
   for(let authorLink of authorLinks){ 
     /* add class active */
