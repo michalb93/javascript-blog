@@ -1,5 +1,13 @@
 'use strict';
 
+const templates = {
+  articleLink: Handlebars.compile(document.querySelector('#template-article-link').innerHTML),
+  tagLink: Handlebars.compile(document.querySelector('#template-tag-link').innerHTML),
+  authorLink: Handlebars.compile(document.querySelector('#template-author-link').innerHTML),
+  tagCloudLink: Handlebars.compile(document.querySelector('#template-tag-cloud-link').innerHTML),
+  authorCloudLink: Handlebars.compile(document.querySelector('#template-author-cloud-link').innerHTML),
+}
+
 function titleClickHandler(event){
   event.preventDefault();
   const clickedElement = this;
@@ -70,8 +78,10 @@ function generateTitleLinks(customSelector = ''){
     /* get the title from the title element */
 	
     /* create HTML of the link */
-    const linkHTML = '<li><a href="#' + articleId + '"><span>' + articleTitle + '</span></a></li>';
-    console.log(linkHTML);
+    //const linkHTML = '<li><a href="#' + articleId + '"><span>' + articleTitle + '</span></a></li>';
+    //console.log(linkHTML);
+	const linkHTMLData = {id: articleId, title: articleTitle};
+    const linkHTML = templates.articleLink(linkHTMLData);
     /* insert link into html variable */
     html = html + linkHTML;
     console.log(html);
@@ -157,18 +167,27 @@ function generateTags(){
   /*[NEW] create variable for all links HTML code*/
   const tagsParams = calculateTagsParams(allTags);
   console.log('tagsParams:', tagsParams)
-  let allTagsHTML = '';
+  //let allTagsHTML = '';
+  const allTagsData = {tags: []};
   /*[NEW] START LOOP: for each tag in allTags: */
   for(let tag in allTags){
 	  /*[NEW] generate code of a link and add it to allTagsHTML*/
-	  allTagsHTML += tag+ ' (' + allTags[tag] + ') ';
+	  //allTagsHTML += tagLinkHTML; - ta linia doklejala kod kolejnego linka do allTagsHTML?????
+	  //allTagsHTML += tag+ ' (' + allTags[tag] + ') ';
+	  allTagsData.tags.push({
+      tag: tag,
+      count: allTags[tag],
+      className: calculateTagClass(allTags[tag], tagsParams)
+});
 	  const tagLinkHTML = '<li>' + calculateTagClass(allTags[tag], tagsParams); + '</li>';
 	  console.log('taglinkHTML:', tagLinkHTML);
   }
   /*NEW END LOOP: for each tag in allTags: */
   
   /*[NEW] add html from allTagsHTML to tagList */
-  tagList.innerHTML = allTagsHTML;
+  //tagList.innerHTML = allTagsHTML;
+  tagList.innerHTML = templates.tagCloudLink(allTagsData);
+  console.log('allTagsData:',allTagsData);
 }
   
 generateTags();
@@ -218,6 +237,10 @@ addClickListenersToTags();
 function generateAuthors() {
   let allAuthors = {};
   const articles = document.querySelectorAll(optArticleSelector);
+  
+   //add Handlebars:
+  const allAuthorsData = { authors: [] };
+  const authorSidebar = document.querySelector(optAuthorsListSelector);
 
   for (let article of articles) {
 
@@ -227,12 +250,35 @@ function generateAuthors() {
     let html = '';
     /* get author attribute */
     const articleAuthor = article.getAttribute('data-author');
-	const authorLinkHTML = '<li><a href="#author-' + articleAuthor + '"><span>' + articleAuthor + '</span></a></li>';
+	if (!allAuthors.hasOwnProperty(articleAuthor)) {
+      allAuthors[articleAuthor] = 1;
+    } else {
+      allAuthors[articleAuthor]++;
+    }
+
+    //const authorLinkHTML = '<li><a href="#author-' + articleAuthor + '"><span>' + articleAuthor + '</span></a></li>';
+
+    //add handlebars:
+    const linkHTMLData = { id: articleAuthor, title: articleAuthor };
+    const authorLinkHTML = templates.authorLink(linkHTMLData);
+
     /* add generated code to html variable */
     html = html + authorLinkHTML;
     /* add html for each author wrapper */
     authorList.innerHTML = html;
   }
+
+  for (let author in allAuthors) {
+    //const asideAuthorLinkHTML = '<li><a href="#author-' + author + '"><span>' + author + " (" + allAuthors[author] + ")" + '</span></a></li>';
+    //add Handlebars:    
+    allAuthorsData.authors.push({
+    author: author,
+    count: allAuthors[author]
+    });
+    //htmlSidebar += asideAuthorLinkHTML;
+  }
+  //authorSidebar.innerHTML = htmlSidebar;
+  authorSidebar.innerHTML = templates.authorCloudLink(allAuthorsData);
 }
 
 generateAuthors();
